@@ -45,8 +45,8 @@ dependencies {
 	compile 'org.ow2.asm:asm-util:7.1'
 	compile 'com.github.Chocohead:tiny-mappings-parser:48ff692'
 	implementation group: 'org.checkerframework', name: 'checker-qual', version: '2.5.7'
-	implementation('cuchaz:enigma:0.14.0.120') {
-		exclude group: 'org.ow2.asm'
+	implementation('cuchaz:enigma:0.27.1') {
+		transitive = false
 	}
 }
 
