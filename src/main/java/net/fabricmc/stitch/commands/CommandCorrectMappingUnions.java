@@ -61,7 +61,7 @@ public class CommandCorrectMappingUnions extends Command {
 			EntryTriple mapping = method.get(baseNamespace);
 			if (mapping == null) continue; //Little naughty for the base to not contain everything but not to worry
 
-			methodMappings.computeIfAbsent(mapping.getName(), k -> new HashSet<>()).add(method);
+			methodMappings.computeIfAbsent(mapping.getName().concat(mapping.getDesc()), k -> new HashSet<>()).add(method);
 		}
 		assert !methodMappings.containsKey(null);
 
@@ -76,9 +76,10 @@ public class CommandCorrectMappingUnions extends Command {
 
 				String baseName = entry.getKey();
 				for (String namespace : correctingNamespaces) {
+					int baseNameLength = baseName.indexOf('(');
 					List<EntryTriple> changedNames = methods.stream().map(method -> method.get(namespace)).filter(mapping -> {
 						if (mapping == null) return false; //Not present in this namespace
-						return !baseName.equals(mapping.getName());
+						return mapping.getName().length() != baseNameLength || !baseName.startsWith(mapping.getName());
 					}).collect(Collectors.toList());
 
 					String newName;
@@ -94,10 +95,10 @@ public class CommandCorrectMappingUnions extends Command {
 						EntryTriple first = changedNames.get(0);
 
 						if (!changedNames.stream().map(EntryTriple::getName).allMatch(Predicate.isEqual(first.getName()))) {
-							StringBuilder complaint = new StringBuilder("Inconsistent union naming, ").append(baseName).append(" ->\n");
+							StringBuilder complaint = new StringBuilder("Inconsistent union naming, ").append(baseName).append(" ->");
 
 							changedNames.stream().collect(Collectors.groupingBy(EntryTriple::getName)).forEach((name, responsible) -> {
-								complaint.append('\t').append(name).append(':');
+								complaint.append("\n\t").append(name).append(':');
 								responsible.forEach(method -> complaint.append("\n\t\t").append(method));
 							});
 
